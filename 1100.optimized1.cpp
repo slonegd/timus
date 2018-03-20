@@ -1,13 +1,13 @@
 /**
  * первая оптимизация, замена вектора на массив структур
- * неверный ответ на 4 тесте, не понял почему
+ * сработало за 0.514
  */
 #include <iostream>
 #include <array>
 #include <algorithm>
 
 struct Data {
-    unsigned char qty;
+    unsigned int qty;
     unsigned int id;
 };
 
