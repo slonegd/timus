@@ -62,20 +62,120 @@
  * Samsonov 2
  * Toropov 1
  * 
- * Решение:
- * сначала определяем всех, у кого 1.
- * убираем эти команды,
- * потом ищем всех, кто 2
- * убираем
- * и так пока поиск не даст ноль
- * 
  */
 
 #include <iostream>
+#include <map>
+#include <string>
 #include <vector>
+#include <list>
+#include <array>
 #include <algorithm>
 
 int main()
 {
-    std::ios::sync_with_stdio(false);
+	std::ios::sync_with_stdio(false);
+
+   /// результат на вывод
+	std::map<std::string, int> res;
+   /// команды с неопределённым числом исимбаева
+	std::list<std::array<std::string,3>> undefined;
+   /// список людей с текущим и следующим числом исимбаева
+   std::vector<std::string> level, level_next;
+
+	int n;
+
+	std::string champion {"Isenbaev"};
+
+	std::cin >> n;
+	while (n--) {
+		std::array<std::string,3> command;
+      bool command_with_champion;
+      command_with_champion = false;
+		for (auto& name : command) {
+			std::cin >> name;
+         if (name == champion) {
+            res.insert (std::make_pair(champion, 0));
+            command_with_champion = true;
+         }
+      }
+      if (command_with_champion) {
+         for (auto& name : command) {
+            if (name != champion) {
+               res.insert (std::make_pair(name, 1));
+               level.push_back(name);
+            }
+         }
+      } else {
+		   undefined.push_back(command);
+      }
+	}
+
+   // ищем текущего уровня
+   // если находим, добавляем к следующему уровню
+   // когда дошли до конца и размер следующего уровня не равен нулю
+   // запускаем заново с новым уровнем
+
+   n = 2;
+
+repeat:
+	auto it = undefined.begin();
+	do {
+		it = std::find_if (
+			it, undefined.end(),
+			[level] (const std::array<std::string,3>& command) {
+				return std::any_of (
+					command.begin(), command.end(),
+					[level] (const std::string& name) {
+						return std::any_of (
+                     level.begin(), level.end(),
+                     [name] (const std::string& name_) {
+                        return name == name_;
+                     }
+                  );
+					}
+				);
+			}
+		);
+		if (it != undefined.end()) {
+         for (auto& name : *it) {
+            if ( std::any_of (
+                     level.begin(), level.end(),
+                     [name] (const std::string& name_) {
+                        return name != name_;
+                     }
+                 )
+            ) {
+               res.insert (std::make_pair(name,n));
+               level_next.push_back(name);
+            }
+         }
+         it = undefined.erase(it);
+      }
+	} while (it != undefined.end());
+
+   if (level_next.size()) {
+      level = level_next;
+      level_next.clear();
+      n++;
+      goto repeat;
+   }
+
+   // вставляем тех, кого не определили
+   for (const auto& command : undefined)
+      for (const auto& name : command)
+         res.insert (std::make_pair(name,-1));
+
+
+   // вывод
+	for (const auto& men : res) {
+	   std::cout << men.first << ' ';
+      if (men.second == -1)
+         std::cout << "undefined";
+      else
+         std::cout << men.second;
+      std::cout << std::endl;
+   }
+
+
 }
