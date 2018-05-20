@@ -1,5 +1,4 @@
 /**
- * 
  * 1243. Развод семи гномов
  * Все мы знаем, чем закончилась история про Белоснежку и семь гномов —
  * Белоснежка уехала с женихом, бросив всех тех, кто бескорыстно помог
@@ -23,7 +22,7 @@
  * 
  * Исходные данные
  * Единственная строка содержит число N одинаковых вещей, которые хотят
- * поделить гномы (1 ≤ N ≤ 1050).
+ * поделить гномы (1 ≤ N ≤ 10^50).
  * 
  * Результат
  * Единственное число — количество вещей, которые в результате
@@ -32,19 +31,69 @@
  * Пример
  * исходные данные   результат
  * 123456123456      1
- * 
- * 
- * Признак делимости на 7 (в скобках разряд)
- * (2)(1)+2*(0) - делится на 7;
- * 
- * unsigned long long От 0 до 18 446 744 073 709 551 615 (1.8 * 10^19)
- * как минимум 3 unsigned long long надо
- * 
  */
+
 #include <iostream>
+#include <string>
+#include <vector>
+#include <cmath>
+
+struct BigNum
+{
+    std::vector<int> decimal;
+
+    BigNum (std::string s)
+    {
+        decimal.reserve(s.size());
+        while (s.size()) {
+            decimal.push_back (s.back() - '0');
+            s.pop_back();
+        }
+    }
+
+    BigNum operator-- (int)
+    {
+        size_t i = 0;
+        do {
+            this->decimal[i]--;
+            decimal[i] = std::min(9,decimal[i]);
+        } while (this->decimal[i++] == 9);
+
+        return *this;
+    }
+
+    int mod7()
+    {
+        // Берётся первая слева цифра, умножается на 3, прибавляется следующая,
+        // и всё повторяется сначала:
+        // например, для 154: 1 ⋅ 3 + 5 = 8 , 8 ⋅ 3 + 4 = 28.
+        // Также на каждом шаге можно брать остаток от деления на 7:
+        // 1 ⋅ 3 + 5 = 8 остаток 1, 1 ⋅ 3 + 4 = 7 остаток 0.
+        // В обоих случаях итоговое число равноостаточно при делении на 7 с исходным числом.
+        auto it = decimal.rbegin();
+        int res = *it;
+        for (it = std::next(it); it != decimal.rend(); ++it) {
+            res = (res*3 + *it) % 7;
+        }
+        return res;
+    }
+
+    // friend std::ostream& operator << (std::ostream& s, const BigNum& n)
+    // {
+    //     for (auto it = n.decimal.rbegin(); it != n.decimal.rend(); ++it)
+    //         s << *it;
+    //     return s;
+    // }
+};
 
 int main()
 {
     std::ios::sync_with_stdio(false);
+
+    std::string s;
+    std::cin >> s;
+
+    auto number = BigNum(s);
+    std::cout << number.mod7() << std::endl;
 
 }
