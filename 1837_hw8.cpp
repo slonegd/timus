@@ -122,21 +122,15 @@ repeat:
 	auto it = undefined.begin();
 	do {
 		it = std::find_if (
-			it, undefined.end(),
-			[level] (const std::array<std::string,3>& command) {
-				return std::any_of (
-					command.begin(), command.end(),
-					[level] (const std::string& name) {
-						return std::any_of (
-                     level.begin(), level.end(),
+         it, undefined.end(), [level] (const std::array<std::string,3>& command) {
+            return std::any_of (command.begin(), command.end(),
+               [level] (const std::string& name) {
+                  return std::any_of (level.begin(), level.end(),
                      [name] (const std::string& name_) {
                         return name == name_;
-                     }
-                  );
-					}
-				);
-			}
-		);
+                  });
+            });
+      });
 		if (it != undefined.end()) {
          for (auto& name : *it) {
             if ( std::any_of (
