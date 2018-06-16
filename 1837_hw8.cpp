@@ -82,6 +82,9 @@ int main()
   std::list<std::array<std::string,3>> undefined;
   /// список людей с текущим и следующим числом исимбаева
   std::vector<std::string> level, level_next;
+  auto plevel = &level;
+  auto plevel_next = &level_next;
+
 
   int n;
 
@@ -118,38 +121,47 @@ int main()
 
   n = 2;
 
+  auto hasNameInDefinedLevel = [](const auto plevel, const auto& name) { 
+    return  std::any_of (plevel->begin(), plevel->end(),
+      [&name] (const std::string& name_) {
+        return name == name_;
+      });
+  };
+
+  auto hasCommandWithDefined = [&] (const auto& command) {
+      return std::any_of (command.begin(), command.end(),
+        [&] (const std::string& name) {
+          return hasNameInDefinedLevel(plevel, name);
+      });
+  };
+
+  auto notDefined = [&](const auto& name) { 
+    return  std::any_of (plevel->begin(), plevel->end(),
+      [&name] (const std::string& name_) {
+        return name != name_;
+      });
+  };
+
 repeat:
   auto it = undefined.begin();
   do {
     it = std::find_if ( it, undefined.end(), 
-      [level] (const std::array<std::string,3>& command) {
-        return std::any_of (command.begin(), command.end(),
-          [level] (const std::string& name) {
-            return std::any_of (level.begin(), level.end(),
-              [name] (const std::string& name_) {
-                return name == name_;
-            });
-        });
-    });
+      hasCommandWithDefined
+    );
     if (it != undefined.end()) {
       for (auto& name : *it) {
-        if ( std::any_of (
-          level.begin(), level.end(),
-          [name] (const std::string& name_) {
-            return name != name_;
-          }
-        ) ) {
+        if ( notDefined(name) ) {
           res.insert (std::make_pair(name,n));
-          level_next.push_back(name);
+          plevel_next->push_back(name);
         }
       }
       it = undefined.erase(it);
     }
   } while (it != undefined.end());
 
-  if (level_next.size()) {
-    level = level_next;
-    level_next.clear();
+  if (plevel_next->size()) {
+    std::swap(plevel, plevel_next);
+    plevel_next->clear();
     n++;
     goto repeat;
   }

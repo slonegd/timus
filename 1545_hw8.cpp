@@ -55,6 +55,8 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <iterator>
 
 int main()
 {
@@ -71,8 +73,8 @@ int main()
         dictionary.push_back (str);
     }
     std::cin >> letter;
-    for (auto word : dictionary) {
-        if (word.front() == letter)
-            std::cout << word << std::endl;
-    }
+    std::copy_if (std::cbegin(dictionary), std::cend(dictionary),
+        std::ostream_iterator<std::string>(std::cout),
+        [letter](const auto& word) { return word.front() == letter; }
+    );
 }

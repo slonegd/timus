@@ -74,8 +74,8 @@ int main()
         std::cin >> tmp;
         res += static_cast<int>(
             std::binary_search (
-                std::begin(teacher),
-                std::end(teacher),
+                std::cbegin(teacher),
+                std::cend(teacher),
                 tmp
             )
         );
