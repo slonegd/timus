@@ -49,7 +49,25 @@
 int main()
 {
     std::ios::sync_with_stdio(false);
+    std::size_t h,w,n;
+    std::size_t charCount {0};
+    std::size_t lineCount {0};
+    std::cin >> h >> w >> n;
     std::string str;
+    std::getline (std::cin, str);
+    while (n--) {
+        std::getline (std::cin, str);
+        std::size_t tmp;
+        tmp = charCount + str.size();
+        if (tmp > w) {
+            lineCount++;
+            charCount = str.size() + 1;
+        } else {
+            charCount = ++tmp;
+        }
+    }
+    if (charCount)
+        lineCount++;
 
-    std::cout << std::endl;
+    std::cout << (lineCount / h) + (lineCount % h != 0) << std::endl;
 }
